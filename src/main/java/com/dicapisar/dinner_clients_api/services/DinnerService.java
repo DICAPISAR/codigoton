@@ -29,7 +29,6 @@ public class DinnerService implements IDinnerService {
 
         System.out.println(clientDTOList.get(0).getTotalBalance());
 
-
-        return orderDinner;
+        return Utils.toStringFinal(Utils.generateFilter(filterDTOs, clientDTOList));
     }
 }
