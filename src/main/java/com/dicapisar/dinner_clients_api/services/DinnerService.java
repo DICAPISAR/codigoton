@@ -1,13 +1,14 @@
 package com.dicapisar.dinner_clients_api.services;
 
+import com.dicapisar.dinner_clients_api.dtos.ClientDTO;
 import com.dicapisar.dinner_clients_api.dtos.FilterDTO;
 import com.dicapisar.dinner_clients_api.repositories.IAccountRepository;
 import com.dicapisar.dinner_clients_api.repositories.IClientRepository;
 import com.dicapisar.dinner_clients_api.utils.FilterUtil;
+import com.dicapisar.dinner_clients_api.utils.Utils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,13 +23,11 @@ public class DinnerService implements IDinnerService {
 
         List<FilterDTO> filterDTOs = FilterUtil.toFilterDTOList(orderDinner);
 
-        FilterDTO filterDTO = filterDTOs.get(0);
+        List<Object> clients = clientRepository.getClientsWithTotalBalance();
 
-        System.out.println(filterDTO.getTypeTable());
-        System.out.println(filterDTO.getTypeClient());
-        System.out.println(filterDTO.getCodeGeographicLocation());
-        System.out.println(filterDTO.getInitRange());
-        System.out.println(filterDTO.getFinalRange());
+        List<ClientDTO> clientDTOList = Utils.toClientDTOList(clients);
+
+        System.out.println(clientDTOList.get(0).getTotalBalance());
 
 
         return orderDinner;
