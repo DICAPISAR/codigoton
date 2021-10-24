@@ -16,6 +16,13 @@ public class DinnerService implements IDinnerService {
 
     private IClientRepository clientRepository;
 
+    /**
+     * Method that validates the filters, generates the groups, applies the filters according to the case and returns
+     * a String where it indicates the name of the table and the codes of the clients that apply to the table
+     * @param orderDinner
+     * @return
+     * @throws DinnerClientsAPIException
+     */
     public String generateDinner(String orderDinner) throws DinnerClientsAPIException {
 
         List<FilterDTO> filterDTOs = FilterUtil.toFilterDTOList(orderDinner);
