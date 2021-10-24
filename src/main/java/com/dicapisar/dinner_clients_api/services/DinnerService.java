@@ -2,6 +2,7 @@ package com.dicapisar.dinner_clients_api.services;
 
 import com.dicapisar.dinner_clients_api.dtos.ClientDTO;
 import com.dicapisar.dinner_clients_api.dtos.FilterDTO;
+import com.dicapisar.dinner_clients_api.exceptions.DinnerClientsAPIException;
 import com.dicapisar.dinner_clients_api.repositories.IAccountRepository;
 import com.dicapisar.dinner_clients_api.repositories.IClientRepository;
 import com.dicapisar.dinner_clients_api.utils.FilterUtil;
@@ -18,7 +19,7 @@ public class DinnerService implements IDinnerService {
     private IAccountRepository accountRepository;
     private IClientRepository clientRepository;
 
-    public String generateDinner(String orderDinner) {
+    public String generateDinner(String orderDinner) throws DinnerClientsAPIException {
 
 
         List<FilterDTO> filterDTOs = FilterUtil.toFilterDTOList(orderDinner);
