@@ -3,6 +3,8 @@ package com.dicapisar.dinner_clients_api.utils;
 import com.dicapisar.dinner_clients_api.dtos.ClientDTO;
 import com.dicapisar.dinner_clients_api.dtos.FilterDTO;
 import com.dicapisar.dinner_clients_api.dtos.TableDTO;
+import com.dicapisar.dinner_clients_api.exceptions.DinnerClientsAPIException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -51,7 +53,7 @@ public class Utils {
         return clientDTOList;
     }
 
-    public static List<TableDTO> generateFilter(List<FilterDTO> filterDTOS, List<ClientDTO> clientDTOList) {
+    public static List<TableDTO> generateFilter(List<FilterDTO> filterDTOS, List<ClientDTO> clientDTOList) throws DinnerClientsAPIException {
 
         List<TableDTO> tableDTOList = new ArrayList<>();
 
@@ -158,7 +160,7 @@ public class Utils {
         return clientDTOListMale.size() - clientDTOListFemale.size();
     }
 
-    private static String toStringCodes(List<ClientDTO> clientDTOList) {
+    private static String toStringCodes(List<ClientDTO> clientDTOList) throws DinnerClientsAPIException {
         String code = "";
 
         for (ClientDTO clientDTO :
@@ -178,7 +180,7 @@ public class Utils {
         return code;
     }
 
-    private static String decryptCode(ClientDTO clientDTO) {
+    private static String decryptCode(ClientDTO clientDTO) throws DinnerClientsAPIException {
         final String URL = "https://test.evalartapp.com/extapiquest/code_decrypt/" + clientDTO.getCode();
         String code = "";
         try {
@@ -186,7 +188,7 @@ public class Utils {
             String result = restTemplate.getForObject(URL, String.class);
             code = result.replace("\"", "");
         } catch (Exception e) {
-            //TODO: RESPONDER CON ERROR DE CONEXION A LA API DE DESENCRIPTAR
+            throw new DinnerClientsAPIException("Decryption API connection failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return code;

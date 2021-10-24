@@ -1,5 +1,6 @@
 package com.dicapisar.dinner_clients_api.controllers;
 
+import com.dicapisar.dinner_clients_api.exceptions.DinnerClientsAPIException;
 import com.dicapisar.dinner_clients_api.services.IDinnerService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ public class DinnerController {
     private IDinnerService dinnerService;
 
     @PostMapping("/generate")
-    public ResponseEntity<String> generateDinner(@RequestBody String orderDinner) {
+    public ResponseEntity<String> generateDinner(@RequestBody String orderDinner) throws DinnerClientsAPIException {
         return new ResponseEntity<>(dinnerService.generateDinner(orderDinner), HttpStatus.OK);
     }
 }
