@@ -3,11 +3,12 @@ package com.dicapisar.dinner_clients_api.utils;
 import com.dicapisar.dinner_clients_api.dtos.ClientDTO;
 import com.dicapisar.dinner_clients_api.dtos.FilterDTO;
 import com.dicapisar.dinner_clients_api.dtos.TableDTO;
-import com.sun.tools.jconsole.JConsoleContext;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,8 @@ public class Utils {
             clientDTOList.add(clientDTO);
         }
 
+        Collections.sort(clientDTOList, Collections.reverseOrder());
+
         return clientDTOList;
     }
 
@@ -75,18 +78,26 @@ public class Utils {
                 clients =  applyFilterFinalRange(clients, filter.getFinalRange());
             }
 
-            tableDTO.setType(filter.getTypeTable());
+            clients = removeRepeatEmployeesByCompany(clients);
 
-            System.out.println(filter.getTypeTable());
-            System.out.println(clients.size());
-            System.out.println(getDifferenceBetweenMenAndWoman(clients));
+            tableDTO.setType(filter.getTypeTable());
 
             if (clients.size() < 4 ) {
                 tableDTO.setCodes("CANCELADA");
             } else {
-                tableDTO.setCodes(toStringCodes(clients));
+                clients = applyGenderLeveling(clients, getDifferenceBetweenMenAndWoman(clients));
+                if (clients.size() > 8) {
+                    clients = deleteLeftoverClients(clients, (clients.size()-8));
+                    if(getDifferenceBetweenMenAndWoman(clients) != 0) {
+                        clients = applyGenderLeveling(clients, getDifferenceBetweenMenAndWoman(clients));
+                    }
+                }
+                if(clients.size() < 4) {
+                    tableDTO.setCodes("CANCELADA");
+                } else {
+                    tableDTO.setCodes(toStringCodes(clients));
+                }
             }
-
             tableDTOList.add(tableDTO);
         }
 
@@ -104,10 +115,6 @@ public class Utils {
 
         return stringFinal;
     }
-
-
-
-
 
     private static List<ClientDTO> applyFilterTypeClient(List<ClientDTO> clientDTOList, int typeClient) {
         return clientDTOList.stream()
@@ -163,8 +170,9 @@ public class Utils {
 
             if(code.equals("")) {
                 code = code + clientDTO.getCode();
+            } else {
+                code = code + "," + clientDTO.getCode();
             }
-            code = code + "," + clientDTO.getCode();
         }
 
         return code;
@@ -176,7 +184,7 @@ public class Utils {
         try {
             RestTemplate restTemplate = new RestTemplate();
             String result = restTemplate.getForObject(URL, String.class);
-            code = result;
+            code = result.replace("\"", "");
         } catch (Exception e) {
             //TODO: RESPONDER CON ERROR DE CONEXION A LA API DE DESENCRIPTAR
         }
@@ -184,4 +192,75 @@ public class Utils {
         return code;
     }
 
+    private static List<ClientDTO> removeRepeatEmployeesByCompany(List<ClientDTO> clientDTOList) {
+        List<ClientDTO> clientDTOS = new ArrayList<>();
+
+        List<String> companyList = new ArrayList<>();
+
+        for (ClientDTO clientDTO :
+                clientDTOList) {
+            if (!isCompanyAlreadySelected(companyList, clientDTO)){
+                clientDTOS.add(clientDTO);
+                companyList.add(clientDTO.getCompany());
+            }
+        }
+
+        return clientDTOS;
+    }
+
+    private static boolean isCompanyAlreadySelected(List<String> companyList, ClientDTO clientDTO) {
+
+        for (String company :
+                companyList) {
+            if(company.equals(clientDTO.getCompany())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<ClientDTO> applyGenderLeveling(List<ClientDTO> clientDTOList, int difference) {
+
+        Collections.sort(clientDTOList);
+
+        if (difference > 0) {
+            for (int i = 0; i < difference; i++) {
+                for (ClientDTO clientDTO :
+                        clientDTOList) {
+                    if (clientDTO.isMale()) {
+                        int position = clientDTOList.indexOf(clientDTO);
+                        clientDTOList.remove(position);
+                        break;
+                    }
+                }
+            }
+            Collections.sort(clientDTOList, Collections.reverseOrder());
+            return clientDTOList;
+        } else if (difference < 0) {
+            for (int i = 0; i < (difference * -1); i++) {
+                for (ClientDTO clientDTO :
+                        clientDTOList) {
+                    if (!clientDTO.isMale()) {
+                        int position = clientDTOList.indexOf(clientDTO);
+                        clientDTOList.remove(position);
+                        break;
+                    }
+                }
+            }
+            Collections.sort(clientDTOList, Collections.reverseOrder());
+            return clientDTOList;
+        }
+        Collections.sort(clientDTOList, Collections.reverseOrder());
+        return clientDTOList;
+    }
+
+    private static List<ClientDTO> deleteLeftoverClients(List<ClientDTO> clientDTOList, int countClientToDelete) {
+        Collections.sort(clientDTOList);
+
+        for (int i = 0; i < countClientToDelete; i++) {
+            clientDTOList.remove(0);
+        }
+
+        return clientDTOList;
+    }
 }

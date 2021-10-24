@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ClientDTO {
+public class ClientDTO implements Comparable<ClientDTO> {
     private int id;
     private String code;
     private boolean isMale;
@@ -18,4 +18,9 @@ public class ClientDTO {
     private String company;
     private boolean isEncrypt;
     private BigDecimal totalBalance;
+
+    @Override
+    public int compareTo(ClientDTO c) {
+        return this.getTotalBalance().compareTo(c.getTotalBalance());
+    }
 }
