@@ -17,31 +17,31 @@ public class FilterUtil {
     public static FilterDTO toFilterDTO(String orderDinner) {
         FilterDTO filterDTO = new FilterDTO();
 
-        String lines[] = separateByLineBreak(orderDinner);
+        String[] lines = separateByLineBreak(orderDinner);
 
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].contains(">")){
-                String typeTable = lines[i].replace(">","");
+        for (String line : lines) {
+            if (line.contains(">")) {
+                String typeTable = line.replace(">", "");
                 typeTable = typeTable.replace("\r", "");
                 filterDTO.setTypeTable(typeTable);
             }
-            if (lines[i].contains("TC")){
-                String typeClient = lines[i].replace("TC:", "");
+            if (line.contains("TC")) {
+                String typeClient = line.replace("TC:", "");
                 typeClient = typeClient.replace("\r", "");
                 filterDTO.setTypeClient(Integer.parseInt(typeClient));
             }
-            if (lines[i].contains("UG")){
-                String codeGeographicLocation = lines[i].replace("UG:", "");
+            if (line.contains("UG")) {
+                String codeGeographicLocation = line.replace("UG:", "");
                 codeGeographicLocation = codeGeographicLocation.replace("\r", "");
                 filterDTO.setCodeGeographicLocation(Integer.parseInt(codeGeographicLocation));
             }
-            if (lines[i].contains("RI")){
-                String initRange = lines[i].replace("RI:", "");
+            if (line.contains("RI")) {
+                String initRange = line.replace("RI:", "");
                 initRange = initRange.replace("\r", "");
                 filterDTO.setInitRange(Integer.parseInt(initRange));
             }
-            if (lines[i].contains("RF")){
-                String finalRange = lines[i].replace("RF:", "");
+            if (line.contains("RF")) {
+                String finalRange = line.replace("RF:", "");
                 finalRange = finalRange.replace("\r", "");
                 filterDTO.setFinalRange(Integer.parseInt(finalRange));
             }
@@ -51,7 +51,7 @@ public class FilterUtil {
     }
 
     public static List<FilterDTO> toFilterDTOList(String orderDinner) {
-        String filters[] = separateFiltes(orderDinner);
+        String[] filters = separateFilters(orderDinner);
 
         ArrayList<FilterDTO> filterDTOS = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public class FilterUtil {
         return filterDTOS;
     }
 
-    private static String[] separateFiltes(String orderDinner) {
+    private static String[] separateFilters(String orderDinner) {
         return orderDinner.split("<");
     }
 
@@ -74,33 +74,25 @@ public class FilterUtil {
     public static List<ClientDTO> toClientDTOList(List<Object> list) {
         List<ClientDTO> clientDTOList = new ArrayList<>();
 
-        for (int i = 0; i < list.size(); i++) {
+        for (Object value : list) {
 
-            Object[] o = (Object[]) list.get(i);
+            Object[] o = (Object[]) value;
             ClientDTO clientDTO = new ClientDTO();
 
             clientDTO.setId((int) o[0]);
             clientDTO.setCode((String) o[1]);
-            if((byte) o[2] == 0){
-                clientDTO.setMale(false);
-            } else {
-                clientDTO.setMale(true);
-            }
+            clientDTO.setMale((byte) o[2] != 0);
             clientDTO.setType((int) o[3]);
             clientDTO.setLocation((String) o[4]);
             clientDTO.setCompany((String) o[5]);
-            if((boolean) o[6]){
-                clientDTO.setEncrypt(true);
-            } else {
-                clientDTO.setEncrypt(false);
-            }
+            clientDTO.setEncrypt((boolean) o[6]);
 
             clientDTO.setTotalBalance((BigDecimal) o[7]);
 
             clientDTOList.add(clientDTO);
         }
 
-        Collections.sort(clientDTOList, Collections.reverseOrder());
+        clientDTOList.sort(Collections.reverseOrder());
 
         return clientDTOList;
     }
@@ -139,11 +131,11 @@ public class FilterUtil {
             if (clients.size() < 4 ) {
                 tableDTO.setCodes("CANCELADA");
             } else {
-                clients = applyGenderLeveling(clients, getDifferenceBetweenMenAndWoman(clients));
+                applyGenderLeveling(clients, getDifferenceBetweenMenAndWoman(clients));
                 if (clients.size() > 8) {
-                    clients = deleteLeftoverClients(clients, (clients.size()-8));
+                    deleteLeftoverClients(clients, (clients.size() - 8));
                     if(getDifferenceBetweenMenAndWoman(clients) != 0) {
-                        clients = applyGenderLeveling(clients, getDifferenceBetweenMenAndWoman(clients));
+                        applyGenderLeveling(clients, getDifferenceBetweenMenAndWoman(clients));
                     }
                 }
                 if(clients.size() < 4) {
@@ -160,14 +152,14 @@ public class FilterUtil {
 
     public static String toStringFinal(List<TableDTO> tableDTOList) {
 
-        String stringFinal = "";
+        StringBuilder stringFinal = new StringBuilder();
 
         for (TableDTO tableDTO :
                 tableDTOList) {
-            stringFinal = stringFinal  + "<" + tableDTO.getType() + ">" + "\n" + tableDTO.getCodes() + "\n";
+            stringFinal.append("<").append(tableDTO.getType()).append(">").append("\n").append(tableDTO.getCodes()).append("\n");
         }
 
-        return stringFinal;
+        return stringFinal.toString();
     }
 
     private static List<ClientDTO> applyFilterTypeClient(List<ClientDTO> clientDTOList, int typeClient) {
@@ -202,7 +194,7 @@ public class FilterUtil {
 
     private static int getDifferenceBetweenMenAndWoman(List<ClientDTO> clientDTOList) {
         List<ClientDTO> clientDTOListMale = clientDTOList.stream()
-                .filter(x -> x.isMale())
+                .filter(ClientDTO::isMale)
                 .collect(Collectors.toList());
 
         List<ClientDTO> clientDTOListFemale = clientDTOList.stream()
@@ -213,7 +205,7 @@ public class FilterUtil {
     }
 
     private static String toStringCodes(List<ClientDTO> clientDTOList) throws DinnerClientsAPIException {
-        String code = "";
+        StringBuilder code = new StringBuilder();
 
         for (ClientDTO clientDTO :
                 clientDTOList) {
@@ -222,22 +214,23 @@ public class FilterUtil {
                 clientDTO.setCode(decryptCode(clientDTO));
             }
 
-            if(code.equals("")) {
-                code = code + clientDTO.getCode();
+            if(code.toString().equals("")) {
+                code.append(clientDTO.getCode());
             } else {
-                code = code + "," + clientDTO.getCode();
+                code.append(",").append(clientDTO.getCode());
             }
         }
 
-        return code;
+        return code.toString();
     }
 
     private static String decryptCode(ClientDTO clientDTO) throws DinnerClientsAPIException {
         final String URL = "https://test.evalartapp.com/extapiquest/code_decrypt/" + clientDTO.getCode();
-        String code = "";
+        String code;
         try {
             RestTemplate restTemplate = new RestTemplate();
             String result = restTemplate.getForObject(URL, String.class);
+            assert result != null;
             code = result.replace("\"", "");
         } catch (Exception e) {
             throw new DinnerClientsAPIException("Decryption API connection failed", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -273,7 +266,7 @@ public class FilterUtil {
         return false;
     }
 
-    private static List<ClientDTO> applyGenderLeveling(List<ClientDTO> clientDTOList, int difference) {
+    private static void applyGenderLeveling(List<ClientDTO> clientDTOList, int difference) {
 
         Collections.sort(clientDTOList);
 
@@ -282,39 +275,35 @@ public class FilterUtil {
                 for (ClientDTO clientDTO :
                         clientDTOList) {
                     if (clientDTO.isMale()) {
-                        int position = clientDTOList.indexOf(clientDTO);
-                        clientDTOList.remove(position);
+                        clientDTOList.remove(clientDTO);
                         break;
                     }
                 }
             }
-            Collections.sort(clientDTOList, Collections.reverseOrder());
-            return clientDTOList;
+            clientDTOList.sort(Collections.reverseOrder());
+            return;
         } else if (difference < 0) {
             for (int i = 0; i < (difference * -1); i++) {
                 for (ClientDTO clientDTO :
                         clientDTOList) {
                     if (!clientDTO.isMale()) {
-                        int position = clientDTOList.indexOf(clientDTO);
-                        clientDTOList.remove(position);
+                        clientDTOList.remove(clientDTO);
                         break;
                     }
                 }
             }
-            Collections.sort(clientDTOList, Collections.reverseOrder());
-            return clientDTOList;
+            clientDTOList.sort(Collections.reverseOrder());
+            return;
         }
-        Collections.sort(clientDTOList, Collections.reverseOrder());
-        return clientDTOList;
+        clientDTOList.sort(Collections.reverseOrder());
     }
 
-    private static List<ClientDTO> deleteLeftoverClients(List<ClientDTO> clientDTOList, int countClientToDelete) {
+    private static void deleteLeftoverClients(List<ClientDTO> clientDTOList, int countClientToDelete) {
         Collections.sort(clientDTOList);
 
-        for (int i = 0; i < countClientToDelete; i++) {
-            clientDTOList.remove(0);
+        if (countClientToDelete > 0) {
+            clientDTOList.subList(0, countClientToDelete).clear();
         }
 
-        return clientDTOList;
     }
 }

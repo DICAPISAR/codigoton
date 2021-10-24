@@ -2,8 +2,10 @@ package com.dicapisar.dinner_clients_api.exceptions;
 
 import com.dicapisar.dinner_clients_api.dtos.ErrorDTO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class DinnerClientsAPIException extends Exception {
     private final ErrorDTO error;
