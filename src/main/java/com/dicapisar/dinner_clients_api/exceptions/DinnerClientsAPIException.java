@@ -11,6 +11,11 @@ public class DinnerClientsAPIException extends Exception {
     private final ErrorDTO error;
     private final HttpStatus status;
 
+    /**
+     * DinnerClientsAPIException constructor method
+     * @param message String where the error message to be reported in the API is indicated
+     * @param status HttpStatus object which indicates the http code of the error to report
+     */
     public DinnerClientsAPIException(String message, HttpStatus status) {
         this.error = new ErrorDTO();
         this.error.setMessage(message);

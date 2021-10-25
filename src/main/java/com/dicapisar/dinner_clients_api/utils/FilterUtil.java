@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FilterUtil {
+
+    /**
+     * Method to pass a String to a FilterDTO object
+     * @param orderDinner String to pass to FilterDTO object
+     * @return FilterDTO object
+     */
     public static FilterDTO toFilterDTO(String orderDinner) {
         FilterDTO filterDTO = new FilterDTO();
 
@@ -50,6 +56,11 @@ public class FilterUtil {
         return filterDTO;
     }
 
+    /**
+     * Method to pass a String to a FilterDTO object list
+     * @param orderDinner String to pass to FilterDTO object list
+     * @return FilterDTO object list
+     */
     public static List<FilterDTO> toFilterDTOList(String orderDinner) {
         String[] filters = separateFilters(orderDinner);
 
@@ -63,14 +74,29 @@ public class FilterUtil {
         return filterDTOS;
     }
 
+    /**
+     * Method to pass a String to an array separating the String by the character <
+     * @param orderDinner String to pass to array
+     * @return String arrays
+     */
     private static String[] separateFilters(String orderDinner) {
         return orderDinner.split("<");
     }
 
+    /**
+     * Method to separate a String by line breaks
+     * @param string String to pass to array
+     * @return String arrays
+     */
     public static String[] separateByLineBreak(String string) {
         return string.split("\n");
     }
 
+    /**
+     * Method to pass a list of Object to a list of ClientDTO
+     * @param list Object listing
+     * @return ClientDTO listing
+     */
     public static List<ClientDTO> toClientDTOList(List<Object> list) {
         List<ClientDTO> clientDTOList = new ArrayList<>();
 
@@ -97,6 +123,20 @@ public class FilterUtil {
         return clientDTOList;
     }
 
+    /**
+     * Method that applies the filter logic to the ClientDTO list, the filters applied are: type of client,
+     * geographic location code, starting range of the balance total, final range of the balance total,
+     * gender leveling and only employee per company.
+     *
+     * When the idClient is encrypted it will use the decryptCode () method, in case there is an error with the
+     * decryption API it will return DinnerClientsAPIException.
+     *
+     * At the end of applying the filters, the method will return a list of TableDTO.
+     * @param filterDTOS FilterDTO listing
+     * @param clientDTOList ClientDTO listing
+     * @return TableDTO listing
+     * @throws DinnerClientsAPIException Decrypt API connection error
+     */
     public static List<TableDTO> generateFilter(List<FilterDTO> filterDTOS, List<ClientDTO> clientDTOList) throws DinnerClientsAPIException {
 
         List<TableDTO> tableDTOList = new ArrayList<>();
@@ -150,6 +190,13 @@ public class FilterUtil {
         return tableDTOList;
     }
 
+    /**
+     * Pass the TableDTO listing to a String object applying the corresponding format;
+     * <Table name>
+     * IdClient listing
+     * @param tableDTOList TableDTO listing
+     * @return Formatted String object
+     */
     public static String toStringFinal(List<TableDTO> tableDTOList) {
 
         StringBuilder stringFinal = new StringBuilder();
@@ -162,18 +209,39 @@ public class FilterUtil {
         return stringFinal.toString();
     }
 
+    /**
+     * Method that is responsible for removing those ClientDTO from the ClientDTO list that do not apply to the id of
+     * the client type
+     * @param clientDTOList ClientDTO listing
+     * @param typeClient Customer Type id
+     * @return ClientDTO listing
+     */
     private static List<ClientDTO> applyFilterTypeClient(List<ClientDTO> clientDTOList, int typeClient) {
         return clientDTOList.stream()
                 .filter(x -> x.getType() == typeClient)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Method that is responsible for removing those ClientDTO from the ClientDTO list that do not apply to the
+     * geographic location code
+     * @param clientDTOList ClientDTO listing
+     * @param codeGeographicLocation id geographic location code
+     * @return ClientDTO listing
+     */
     private static List<ClientDTO> applyFilterCodeGeographicLocation(List<ClientDTO> clientDTOList, String codeGeographicLocation) {
         return clientDTOList.stream()
                 .filter(x -> x.getLocation().equals(codeGeographicLocation))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Method that is responsible for removing those ClientDTOs from the ClientDTO list that do not apply to the
+     * initial range of the balance total
+     * @param clientDTOList ClientDTO listing
+     * @param initRange initial range of balance sheet total
+     * @return ClientDTO listing
+     */
     private static List<ClientDTO> applyFilterInitRange(List<ClientDTO> clientDTOList, int initRange) {
 
         BigDecimal range = BigDecimal.valueOf(initRange);
@@ -183,6 +251,13 @@ public class FilterUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     *  Method that is responsible for removing those ClientDTOs from the ClientDTO list that do not apply to the
+     *  final range of the balance total
+     * @param clientDTOList ClientDTO listing
+     * @param finalRange final range of balance sheet total
+     * @return ClientDTO listing
+     */
     private static List<ClientDTO> applyFilterFinalRange(List<ClientDTO> clientDTOList, int finalRange) {
 
         BigDecimal range = BigDecimal.valueOf(finalRange);
@@ -192,6 +267,11 @@ public class FilterUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Method to obtain the amount of difference between Men and Women from the ClientDTO list
+     * @param clientDTOList ClientDTO listing
+     * @return ClientDTO listing
+     */
     private static int getDifferenceBetweenMenAndWoman(List<ClientDTO> clientDTOList) {
         List<ClientDTO> clientDTOListMale = clientDTOList.stream()
                 .filter(ClientDTO::isMale)
@@ -204,6 +284,13 @@ public class FilterUtil {
         return clientDTOListMale.size() - clientDTOListFemale.size();
     }
 
+    /**
+     * Method that is responsible for passing to String the idClient of the ClientDTO list, it relies on the
+     * decryptCode() method to decrypt those idClient that are encrypted
+     * @param clientDTOList ClientDTO listing
+     * @return String object where the idClient is located
+     * @throws DinnerClientsAPIException Decrypt API connection error
+     */
     private static String toStringCodes(List<ClientDTO> clientDTOList) throws DinnerClientsAPIException {
         StringBuilder code = new StringBuilder();
 
@@ -224,6 +311,12 @@ public class FilterUtil {
         return code.toString();
     }
 
+    /**
+     * Method that is responsible for connecting to the decryption API to decrypt the idClient
+     * @param clientDTO ClientDTO object
+     * @return String with decrypted idClient
+     * @throws DinnerClientsAPIException Decrypt API connection error
+     */
     private static String decryptCode(ClientDTO clientDTO) throws DinnerClientsAPIException {
         final String URL = "https://test.evalartapp.com/extapiquest/code_decrypt/" + clientDTO.getCode();
         String code;
@@ -239,6 +332,11 @@ public class FilterUtil {
         return code;
     }
 
+    /**
+     * Method that a single ClientDTO of each company is in charge of on the ClientDTO list
+     * @param clientDTOList ClientDTO listing
+     * @return ClientDTO listing
+     */
     private static List<ClientDTO> removeRepeatEmployeesByCompany(List<ClientDTO> clientDTOList) {
         List<ClientDTO> clientDTOS = new ArrayList<>();
 
@@ -255,6 +353,13 @@ public class FilterUtil {
         return clientDTOS;
     }
 
+    /**
+     * Method that is responsible for checking if the company of the ClientDTO that is delivered with the ClientDTO
+     * list is already within the list.
+     * @param companyList List of String with the id of the companies
+     * @param clientDTO ClientDTO object
+     * @return boolean
+     */
     private static boolean isCompanyAlreadySelected(List<String> companyList, ClientDTO clientDTO) {
 
         for (String company :
@@ -266,6 +371,11 @@ public class FilterUtil {
         return false;
     }
 
+    /**
+     * Method that is responsible for leveling the amount between Men and Women of the ClientDTO list.
+     * @param clientDTOList ClientDTO listing
+     * @param difference difference between men and women
+     */
     private static void applyGenderLeveling(List<ClientDTO> clientDTOList, int difference) {
 
         Collections.sort(clientDTOList);
@@ -298,6 +408,11 @@ public class FilterUtil {
         clientDTOList.sort(Collections.reverseOrder());
     }
 
+    /**
+     * Method that is responsible for removing the ClientDTOs that are left over from the ClientDTO list
+     * @param clientDTOList ClientDTO listing
+     * @param countClientToDelete amount of ClientDTO to remove from the ClientDTO list
+     */
     private static void deleteLeftoverClients(List<ClientDTO> clientDTOList, int countClientToDelete) {
         Collections.sort(clientDTOList);
 

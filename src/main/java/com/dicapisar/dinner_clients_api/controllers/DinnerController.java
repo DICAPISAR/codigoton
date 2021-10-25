@@ -17,6 +17,13 @@ public class DinnerController {
 
     private IDinnerService dinnerService;
 
+    /**
+     * Post method which receives a String Object called "orderDinner" and returns a String Object
+     * @param orderDinner String object
+     * @return String object
+     * @throws DinnerClientsAPIException Exception that is responsible for returning an error "500 Internal Server Error"
+     * indicating that the decryption API failed
+     */
     @PostMapping("/generate")
     public ResponseEntity<String> generateDinner(@RequestBody String orderDinner) throws DinnerClientsAPIException {
         return new ResponseEntity<>(dinnerService.generateDinner(orderDinner), HttpStatus.OK);

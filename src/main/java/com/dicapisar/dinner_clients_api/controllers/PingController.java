@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class PingController {
 
+    /**
+     * Method created to check that the API is correctly running
+     * @return String "pong" whit 200 code http
+     */
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
         return new ResponseEntity<>("pong", HttpStatus.OK);
