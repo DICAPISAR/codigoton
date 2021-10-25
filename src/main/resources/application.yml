@@ -5,9 +5,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: Password123@.
-    url: jdbc:mysql://localhost:3306/evalart_reto #?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${USER_NAME_DATA_BASE}
+    password: ${PASSWORD_DATA_BASE}
+    url: jdbc:mysql://localhost:3306/evalart_reto
     initialization-mode: always
     initialize: true
 
