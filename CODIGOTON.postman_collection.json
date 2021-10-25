@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "4f613f8b-8ebd-49d8-8f9a-2e1df2ab5bf1",
+		"name": "CODIGOTON",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/ping",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Dinner",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<General>\r\nTC:1\r\n<Mesa 1>\r\nUG:2\r\nRI:500000\r\n<Mesa 2>\r\nUG:1\r\nRF:500000\r\n<Mesa 3>\r\nUG:3\r\nTC:5\r\nRF:10000\r\n<Mesa 4>\r\nUG:1\r\nRF:100000\r\n<Mesa 5>\r\nUG:99\r\n<Mesa 6>\r\nTC:11\r\nRI:10000"
+				},
+				"url": {
+					"raw": "{{URL}}/dinner/generate",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"dinner",
+						"generate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": ""
+		}
+	]
+}
